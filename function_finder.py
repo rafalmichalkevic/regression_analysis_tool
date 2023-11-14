@@ -1,24 +1,10 @@
 import os
-import ast
-from git_parser import GitParser
+from utils import get_git_root, find_function_definitions
 
-class FunctionNameFinder:
-    def __init__(self, file_path):
-        self.file_path = file_path
-
-    def find_function_definitions(self):
-        with open(self.file_path, 'r') as f:
-            code = f.read()
-            tree = ast.parse(code)
-            function_names = []
-            for node in ast.walk(tree):
-                if isinstance(node, ast.FunctionDef):
-                    function_names.append(node.name)
-            return function_names
 
 class FunctionCallFinder:
     def __init__(self, changed_file_path, function_name):
-        self.folder_path = GitParser.get_git_root(changed_file_path)
+        self.folder_path = get_git_root(changed_file_path)
         self.changed_file_path = changed_file_path
         self.function_name = function_name
 
@@ -37,7 +23,7 @@ class FunctionCallFinder:
         return affected_files
     
     def get_affected_files(self):
-        all_file_functions = FunctionNameFinder(self.changed_file_path).find_function_definitions()
+        all_file_functions = find_function_definitions(self.changed_file_path)
 
         if self.function_name in all_file_functions:
             affected_files = self._find_affected_files()
