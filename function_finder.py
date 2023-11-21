@@ -13,20 +13,24 @@ class FunctionCallFinder:
 
         for root, _, files in os.walk(self.folder_path):
             for file in files:
-                if file.endswith('.py'):
-                    file_path = os.path.join(root, file)
-                    parent_function = self._function_called_in_file(file_path)
-                    old1 = self.changed_file_path
-                    old2 = self.function_name
-                    if parent_function is not None:
-                        if file_path not in affected_files:
-                            affected_files.append(file_path)
-                            self.changed_file_path = file_path
-                            self.function_name = parent_function
-                            self._find_affected_files(affected_files)
-                    self.changed_file_path = old1
-                    self.function_name = old2
-        
+                
+                if not file.endswith('.py'):
+                    continue
+
+                file_path = os.path.join(root, file)
+                parent_function = self._function_called_in_file(file_path)
+                old1 = self.changed_file_path
+                old2 = self.function_name
+
+                if parent_function is not None and file_path not in affected_files:
+                    affected_files.append(file_path)
+                    self.changed_file_path = file_path
+                    self.function_name = parent_function
+                    self._find_affected_files(affected_files)
+                    
+                self.changed_file_path = old1
+                self.function_name = old2
+    
         return affected_files
 
     def _function_called_in_file(self, file_path):
